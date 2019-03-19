@@ -12,7 +12,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Returns an infinite {@link com.tinder.scarlet.Stream} of {@link com.tinder.scarlet.WebSocket.Event} or
+ * Returns an infinite {@link com.tinder.scarlet.Stream} of {@link com.tinder.scarlet.Event} or
  * {@link com.tinder.scarlet.Message}.
  *
  * Note: this is declared as a Java annotation because Scarlet uses java reflection API which can
@@ -22,5 +22,5 @@ import java.lang.annotation.Target;
 @Target(METHOD)
 @Retention(RUNTIME)
 public @interface Receive {
-
+    String type() default "";
 }
