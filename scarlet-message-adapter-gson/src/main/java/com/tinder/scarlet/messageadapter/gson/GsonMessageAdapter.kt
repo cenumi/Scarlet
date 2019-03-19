@@ -21,10 +21,10 @@ import java.nio.charset.StandardCharsets.UTF_8
  * A [message adapter][MessageAdapter] that uses Gson.
  */
 class GsonMessageAdapter<T> private constructor(
-    private val gson: Gson,
-    private val typeAdapter: TypeAdapter<T>,
-    private val annotations: Array<Annotation>,
-    private val key: String
+        private val gson: Gson,
+        private val typeAdapter: TypeAdapter<T>,
+        private val annotations: Array<Annotation>,
+        private val keys: Array<String>
 ) : MessageAdapter<T> {
 
     override fun fromMessage(message: Message): T {
@@ -34,10 +34,10 @@ class GsonMessageAdapter<T> private constructor(
         }
         val annotation = annotations.first { isReceiveAnnotation(it) } as Receive
 
-        return if (annotation.type == ""){
+        return if (annotation.keys.isEmpty()){
             deserializeJson(stringValue)
         }else{
-            deserializeJsonGivenReceiveType(stringValue,key,annotation.type)
+            deserializeJsonGivenReceiveTypes(stringValue,keys,annotation.keys)
         }
     }
 
@@ -63,24 +63,23 @@ class GsonMessageAdapter<T> private constructor(
         return typeAdapter.read(jsonReader)!!
     }
 
-    private fun deserializeJsonGivenReceiveType(jsonString : String, key: String,type : String) : T {
+    private fun deserializeJsonGivenReceiveTypes(jsonString : String, keys: Array<String>, values:Array<String>) : T {
         val jsonObject = JSONObject(jsonString)
-        val typeFromJson = jsonObject.getString(key)
-
-        if (typeFromJson != type) throw Exception()
-
+        for ((i,key) in keys.withIndex()){
+            if (jsonObject.getString(key) != values[i]) throw Exception()
+        }
         return deserializeJson(jsonString)
     }
 
 
     class Factory(
-        private val gson: Gson = DEFAULT_GSON,
-        private val key:String = "type"
+            private val gson: Gson = DEFAULT_GSON,
+            private val keys: Array<String>
     ) : MessageAdapter.Factory {
 
         override fun create(type: Type, annotations: Array<Annotation>): MessageAdapter<*> {
             val typeAdapter = gson.getAdapter(TypeToken.get(type))
-            return GsonMessageAdapter(gson, typeAdapter,annotations,key)
+            return GsonMessageAdapter(gson, typeAdapter,annotations,keys)
         }
 
         companion object {

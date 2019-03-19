@@ -11,6 +11,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+
 /**
  * Returns an infinite {@link com.tinder.scarlet.Stream} of {@link com.tinder.scarlet.Event} or
  * {@link com.tinder.scarlet.Message}.
@@ -22,5 +23,5 @@ import java.lang.annotation.Target;
 @Target(METHOD)
 @Retention(RUNTIME)
 public @interface Receive {
-    String type() default "";
+    String[] keys() default {};
 }
